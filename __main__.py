@@ -61,6 +61,10 @@ def disable_automounitng():
     """1.1.19 Disable Automounting"""
     Service('autofs').disable()
 
+def repo_gpg_settings():
+    exec_shell([
+        'sed -i "s/gpgcheck=0$/gpgcheck=1/" /etc/yum.conf /etc/yum.repos.d/*'
+        ])
 
 def enable_aide():
     """1.3 Filesystem Integrity Checking"""
