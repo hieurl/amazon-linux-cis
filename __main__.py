@@ -111,6 +111,14 @@ def apply_process_hardenings():
     Package('prelink').remove()
 
 def configure_mac():
+    boot = exec_shell([
+        'cat /boot/grub/menu.lst | sed -E "s/(selinux)=0/\\1=1/g"'
+    ])
+    File('/boot/grub/menu.lst').write(boot)
+    boot = exec_shell([
+        'cat /boot/grub/menu.lst | sed -E "s/(enforcing)=0/\\1=1/g"'
+    ])
+    File('/boot/grub/menu.lst').write(boot)
     exec_shell([
         'echo "SELINUX=enforcing\nSELINUXTYPE=targeted" > /etc/selinux/config',
         'chown root:root /etc/selinux/config',
