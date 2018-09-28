@@ -111,10 +111,35 @@ def apply_process_hardenings():
     Package('prelink').remove()
 
 def configure_mac():
-    boot = exec_shell([
-        'cat /boot/grub/menu.lst | sed -E "s/(selinux)=0/\\1=1/g"'
-    ])
+    Package('selinux-policy').install()
+    Package('selinux-policy-targeted').install()
+    Package('policycoreutils-python').install()
+    kernel=exec_shell([
+        'cat /boot/grub/menu.lst | grep ^kernel'
+        ])
+    # add selinux=1
+    if not 'selinux' in kernel:
+        boot = exec_shell([
+            'cat /boot/grub/menu.lst | sed -E "s/^(kernel.*)$/\\1 selinux=1/"'
+        ])
+    else:
+        boot = exec_shell([
+            'cat /boot/grub/menu.lst | sed -E "s/(selinux)=0/\\1=1/g"'
+        ])
     File('/boot/grub/menu.lst').write(boot)
+
+    # add security=selinux
+    if not 'security' in kernel:
+        boot = exec_shell([
+            'cat /boot/grub/menu.lst | sed -E "s/^(kernel.*)$/\\1 security=selinux/"'
+        ])
+    else:
+        boot = exec_shell([
+            'cat /boot/grub/menu.lst | sed -E "s/^(kernel.*security=)[^ ]*(.*)/\\1selinux\\2/g"'
+        ])
+
+    File('/boot/grub/menu.lst').write(boot)
+
     boot = exec_shell([
         'cat /boot/grub/menu.lst | sed -E "s/(enforcing)=0/\\1=1/g"'
     ])
@@ -122,7 +147,8 @@ def configure_mac():
     exec_shell([
         'echo "SELINUX=enforcing\nSELINUXTYPE=targeted" > /etc/selinux/config',
         'chown root:root /etc/selinux/config',
-        'chmod 0600 /etc/selinux/config'
+        'chmod 0600 /etc/selinux/config',
+        'touch /.autorelabel'
         ])
 
 
