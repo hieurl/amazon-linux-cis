@@ -616,6 +616,7 @@ def main():
     disable_automounitng()
     enable_aide()
     secure_boot_settings()
+    configure_mac()
     apply_process_hardenings()
     configure_warning_banners()
     ensure_updated()
