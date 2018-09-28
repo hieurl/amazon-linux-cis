@@ -507,6 +507,14 @@ def configure_su():
     exec_shell('usermod -aG wheel root')
 
 
+def configure_system_file_permission():
+    """6.1 System File Permissions"""
+    exec_shell([
+        'chmod 600 /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow-',
+        'chmod 644 /etc/passwd /etc/passwd- /etc/group /etc/group-'
+        ])
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='A script to harden Amazon Linux instance.')
@@ -596,6 +604,8 @@ def main():
     configure_umask()
     configure_su()
 
+    #6 System Maintenance
+    configure_system_file_permission()
 
 if __name__ == '__main__':
     main()
