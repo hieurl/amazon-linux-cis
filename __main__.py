@@ -510,7 +510,7 @@ def configure_su():
 def configure_system_file_permission():
     """6.1 System File Permissions"""
     exec_shell([
-        'chmod 600 /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow-',
+        'chmod 000 /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow-',
         'chmod 644 /etc/passwd /etc/passwd- /etc/group /etc/group-'
         ])
 
