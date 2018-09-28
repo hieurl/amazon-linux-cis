@@ -111,6 +111,7 @@ def apply_process_hardenings():
     Package('prelink').remove()
 
 def configure_mac():
+    """1.6. Mandatory Access Control"""
     Package('selinux-policy').install()
     Package('selinux-policy-targeted').install()
     Package('policycoreutils-python').install()
@@ -527,7 +528,7 @@ def configure_password_parmas():
 
 
 def configure_umask():
-    """5.4.3, 5.4.4"""
+    """5.4.3, 5.4.4, 5.5.5"""
     umask_reg = r'^(\s*)umask\s+[0-7]+(\s*)$'
 
     bashrc = exec_shell([
@@ -540,6 +541,11 @@ def configure_umask():
             umask_reg)
     ])
     File('/etc/profile').write(profile)
+
+    exec_shell([
+        'echo "TMOUT=600" >> /etc/bashrc',
+        'echo "TMOUT=600" >> /etc/profile'
+        ])
 
 
 def configure_su():
