@@ -110,6 +110,13 @@ def apply_process_hardenings():
     # 1.5.4 Ensure prelink is disabled
     Package('prelink').remove()
 
+def configure_mac():
+    exec_shell([
+        'echo "SELINUX=enforcing\nSELINUXTYPE=targeted" > /etc/selinux/config',
+        'chown root:root /etc/selinux/config',
+        'chmod 0600 /etc/selinux/config'
+        ])
+
 
 def configure_warning_banners():
     """1.7 Warning Banners"""
