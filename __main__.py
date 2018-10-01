@@ -382,6 +382,56 @@ def configure_iptables():
         'service iptables save'
     ])
 
+def configure_auditd():
+    """4.1.1 Configure Data Retention"""
+    PropertyFile('/etc/audit/auditd.conf', ' = ').override({
+        'max_log_file': '8',
+        'space_left_action': 'email',
+        'action_mail_acct': 'root',
+        'admin_space_left_action': 'halt',
+        'max_log_file_action': 'keep_logs'
+        }).write()
+
+    kernel=exec_shell([
+        'cat /boot/grub/menu.lst | grep ^kernel'
+        ])
+    # add audit=1
+    if not 'audit' in kernel:
+        boot = exec_shell([
+            'cat /boot/grub/menu.lst | sed -E "s/^(kernel.*)$/\\1 audit=1/"'
+        ])
+    else:
+        boot = exec_shell([
+            'cat /boot/grub/menu.lst | sed -E "s/(audit)=0/\\1=1/g"'
+        ])
+    File('/boot/grub/menu.lst').write(boot)
+
+    audit_rules = """-D
+-b 320
+
+ -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change
+-a always,exit -F arch=b32 -S adjtimex -S settimeofday -S stime -k time-change
+-a always,exit -F arch=b64 -S clock_settime -k time-change
+-a always,exit -F arch=b32 -S clock_settime -k time-change
+-w /etc/localtime -p wa -k time-change
+
+-w /etc/group -p wa -k identity
+-w /etc/passwd -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/security/opasswd -p wa -k identity
+
+-a always,exit -F arch=b64 -S sethostname -S setdomainname -k system-locale
+-a always,exit -F arch=b32 -S sethostname -S setdomainname -k system-locale
+-w /etc/issue -p wa -k system-locale
+-w /etc/issue.net -p wa -k system-locale
+-w /etc/hosts -p wa -k system-locale
+-w /etc/sysconfig/network -p wa -k system-locale
+-w /etc/sysconfig/network-scripts/ -p wa -k system-locale
+"""
+    bashrc = exec_shell([
+        'echo "{}" > /etc/audit/audit.rules'.format(audit_rules)
+    ])
 
 def configure_rsyslog():
     """4.2.1 Configure rsyslog"""
