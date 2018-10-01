@@ -694,6 +694,7 @@ def main():
         configure_iptables()
 
     # 4 Logging and Auditing
+    configure_auditd()
     configure_rsyslog()
     configure_log_file_permissions()
 
